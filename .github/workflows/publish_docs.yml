@@ -1,0 +1,63 @@
+name: Publish docs
+
+on:
+  repository_dispatch:
+    types:
+    - publish_docs
+
+jobs:
+  publish_docs:
+    name: Publish docs
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Publish docs
+      run: |
+        set -x
+
+        VERSION=${{ github.event.client_payload.version }}
+
+        if [ -z "${VERSION}" ]; then
+          echo "::error::version in client_payload is not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.S3_BUCKET }}" ]; then
+          echo "::error::secret S3_BUCKET is not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.CF_DISTRIBUTION_ID }}" ]; then
+          echo "::error::secret CF_DISTRIBUTION_ID is not set"
+          exit 1
+        fi
+
+        # Fetch and extract the docs
+        curl --fail -s -L -o docs-ai.tar.xz https://proxy.binaries.openttd.org/openttd-nightlies/${VERSION}/openttd-${VERSION}-docs-ai.tar.xz
+        curl --fail -s -L -o docs-gs.tar.xz https://proxy.binaries.openttd.org/openttd-nightlies/${VERSION}/openttd-${VERSION}-docs-gs.tar.xz
+        curl --fail -s -L -o docs.tar.xz https://proxy.binaries.openttd.org/openttd-nightlies/${VERSION}/openttd-${VERSION}-docs.tar.xz
+        tar xf docs-ai.tar.xz
+        tar xf docs-gs.tar.xz
+        tar xf docs.tar.xz
+
+        # Sync all the new/modified files
+        aws s3 sync --only-show-errors docs/root/ s3://${{ secrets.S3_BUCKET }}/
+        aws s3 sync --only-show-errors docs/errors/ s3://${{ secrets.S3_BUCKET }}/errors/
+        aws s3 sync --only-show-errors openttd-${VERSION}-docs-ai/html/ s3://${{ secrets.S3_BUCKET }}/ai-api/
+        aws s3 sync --only-show-errors openttd-${VERSION}-docs-gs/html/ s3://${{ secrets.S3_BUCKET }}/gs-api/
+        aws s3 sync --only-show-errors openttd-${VERSION}-docs/html/ s3://${{ secrets.S3_BUCKET }}/source/
+
+        # Delete any unknown file; this is a separate step, as 'aws s3 sync'
+        # can delete before uploading, which could mean files temporary link
+        # to invalid files.
+        aws s3 sync --only-show-errors --delete docs/errors/ s3://${{ secrets.S3_BUCKET }}/errors/
+        aws s3 sync --only-show-errors --delete openttd-${VERSION}-docs-ai/html/ s3://${{ secrets.S3_BUCKET }}/ai-api/
+        aws s3 sync --only-show-errors --delete openttd-${VERSION}-docs-gs/html/ s3://${{ secrets.S3_BUCKET }}/gs-api/
+        aws s3 sync --only-show-errors --delete openttd-${VERSION}-docs/html/ s3://${{ secrets.S3_BUCKET }}/source/
+
+        # Invalidate the cache of the CloudFront distribution
+        aws cloudfront create-invalidation --distribution-id ${{ secrets.CF_DISTRIBUTION_ID }} --paths "/*"
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
