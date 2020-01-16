@@ -1,0 +1,36 @@
+name: New OpenTTD release
+
+on:
+  repository_dispatch:
+    types:
+    - new_tag
+    - new_master
+
+jobs:
+  new_release:
+    name: New OpenTTD release
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Trigger website (staging)
+      uses: peter-evans/repository-dispatch@v1
+      with:
+        token: ${{ secrets.DEPLOYMENT_TOKEN }}
+        repository: OpenTTD/website
+        event-type: publish_master
+
+    - name: Trigger website (Production)
+      uses: peter-evans/repository-dispatch@v1
+      with:
+        token: ${{ secrets.DEPLOYMENT_TOKEN }}
+        repository: OpenTTD/website
+        event-type: publish_latest_tag
+
+    - if: github.event.action == 'new_master'
+      name: Trigger docs
+      uses: peter-evans/repository-dispatch@v1
+      with:
+        token: ${{ secrets.DEPLOYMENT_TOKEN }}
+        repository: OpenTTD/workflows
+        event-type: publish_docs
+        client-payload: '{"version": "${{ github.event.client_payload.version }}"}'
