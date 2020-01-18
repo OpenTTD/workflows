@@ -5,6 +5,7 @@ on:
     types:
     - new_tag
     - new_master
+    - new_pullrequest
 
 jobs:
   new_release:
