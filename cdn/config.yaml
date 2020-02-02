@@ -1,0 +1,25 @@
+folders:
+- name: catcodec-releases
+- name: grfcodec-releases
+- name: nforenum-releases
+- name: nosound-releases
+- name: opengfx-releases
+- name: openmsx-releases
+- name: opensfx-releases
+- name: openttd-releases
+- name: openttd-useful-releases
+- name: osie-releases
+
+- name: openttd-nightlies
+  subfolders: per-year
+  override-name: in-folder-name
+  sort: normal
+
+- name: openttd-pullrequests
+  subfolders: per-name
+  override-name: in-folder-name
+  sort: normal
+
+- name: grfcodec-nightlies
+  override-name: nightly
+  sort: normal

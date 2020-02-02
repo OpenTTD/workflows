@@ -7,31 +7,42 @@ on:
     - new_master
     - new_pullrequest
 
+# client_payload should contain:
+#  - version: the version of the new release, e.g.: 20200101-master-g12345
+#  - folder: the folder in which the release is located openttd-nightlies/2020
+
 jobs:
   new_release:
     name: New OpenTTD release
     runs-on: ubuntu-latest
 
     steps:
-    - name: Trigger website (staging)
-      uses: peter-evans/repository-dispatch@v1
-      with:
-        token: ${{ secrets.DEPLOYMENT_TOKEN }}
-        repository: OpenTTD/website
-        event-type: publish_master
+    - name: Sanity check
+      run: |
+        set -x
 
-    - name: Trigger website (Production)
+        if [ -z "${{ github.event.client_payload.version }}" ]; then
+          echo "::error::version in client_payload is not set"
+          exit 1
+        fi
+        if [ -z "${{ github.event.client_payload.folder }}" ]; then
+          echo "::error::folder in client_payload is not set"
+          exit 1
+        fi
+
+    - name: Trigger 'update CDN'
       uses: peter-evans/repository-dispatch@v1
       with:
         token: ${{ secrets.DEPLOYMENT_TOKEN }}
-        repository: OpenTTD/website
-        event-type: publish_latest_tag
+        repository: OpenTTD/workflows
+        event-type: update_cdn
+        client-payload: '{"version": "${{ github.event.client_payload.version }}", "folder": "${{ github.event.client_payload.folder }}"}'
 
     - if: github.event.action == 'new_master'
-      name: Trigger docs
+      name: Trigger 'publish docs'
       uses: peter-evans/repository-dispatch@v1
       with:
         token: ${{ secrets.DEPLOYMENT_TOKEN }}
         repository: OpenTTD/workflows
         event-type: publish_docs
-        client-payload: '{"version": "${{ github.event.client_payload.version }}"}'
+        client-payload: '{"version": "${{ github.event.client_payload.version }}", "folder": "${{ github.event.client_payload.folder }}"}'
