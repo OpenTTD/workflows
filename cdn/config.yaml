@@ -23,3 +23,7 @@ folders:
 - name: grfcodec-nightlies
   override-name: nightly
   sort: normal
+
+- name: opengfx-nightlies
+  override-name: in-folder-name
+  sort: normal
