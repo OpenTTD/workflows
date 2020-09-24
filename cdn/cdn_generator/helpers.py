@@ -31,7 +31,12 @@ def list_folder(prefix, is_version_folder=False):
         if "NextContinuationToken" in listing:
             kwargs["ContinuationToken"] = listing["NextContinuationToken"]
 
-        listing = client.list_objects_v2(Bucket=BUCKET, Delimiter="/", Prefix=prefix, **kwargs,)
+        listing = client.list_objects_v2(
+            Bucket=BUCKET,
+            Delimiter="/",
+            Prefix=prefix,
+            **kwargs,
+        )
 
         if "Contents" in listing:
             files.update({obj["Key"][len(prefix) :]: obj["Size"] for obj in listing["Contents"]})
@@ -50,7 +55,10 @@ def list_folder(prefix, is_version_folder=False):
 
 def get_content(key):
     try:
-        content = client.get_object(Bucket=BUCKET, Key=key,)
+        content = client.get_object(
+            Bucket=BUCKET,
+            Key=key,
+        )
     except ClientError:
         print(f"Tried getting object '{key}'", file=sys.stderr)
         raise

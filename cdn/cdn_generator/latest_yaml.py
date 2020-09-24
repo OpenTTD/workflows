@@ -39,7 +39,12 @@ def _find_latest_version(prefix, config):
         if stable:
             date_stable = get_content(f"{prefix}/{stable}/released.txt").replace(" ", "T").replace("TUTC", ":00-00:00")
             latest_versions.append(
-                {"version": stable, "name": "stable", "category": base_category, "date": date_stable,}
+                {
+                    "version": stable,
+                    "name": "stable",
+                    "category": base_category,
+                    "date": date_stable,
+                }
             )
 
         if testing:
@@ -50,7 +55,12 @@ def _find_latest_version(prefix, config):
             # There is only a testing if the stable is older
             if stable and date_stable < date_testing:
                 latest_versions.append(
-                    {"version": testing, "name": "testing", "category": base_category, "date": date_testing,}
+                    {
+                        "version": testing,
+                        "name": "testing",
+                        "category": base_category,
+                        "date": date_testing,
+                    }
                 )
 
     else:
@@ -58,7 +68,12 @@ def _find_latest_version(prefix, config):
 
         date = get_content(f"{prefix}/{folders[0]}/released.txt").replace(" ", "T").replace("TUTC", ":00-00:00")
         latest_versions.append(
-            {"version": folders[0], "name": name, "category": base_category, "date": date,}
+            {
+                "version": folders[0],
+                "name": name,
+                "category": base_category,
+                "date": date,
+            }
         )
 
     return latest_versions
