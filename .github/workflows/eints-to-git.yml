@@ -47,9 +47,9 @@ jobs:
         python eintsgit.py --project openttd-master --working-copy eints-sandbox --base-url https://translator.staging.openttd.org --force update-from-git
 
         # Check if production needs committing
-        # printf "username:translators\npassword:${TRANSLATORS_PRODUCTION}\n" > user.cfg
-        # python eintsgit.py --project openttd-master --working-copy OpenTTD --base-url https://translator.openttd.org commit-to-git
-        # python eintsgit.py --project openttd-master --working-copy OpenTTD --base-url https://translator.openttd.org --force update-from-git
+        printf "username:translators\npassword:${TRANSLATORS_PRODUCTION}\n" > user.cfg
+        python eintsgit.py --project openttd-master --working-copy OpenTTD --base-url https://translator.openttd.org commit-to-git
+        python eintsgit.py --project openttd-master --working-copy OpenTTD --base-url https://translator.openttd.org --force update-from-git
       env:
         TRANSLATORS_STAGING: ${{ secrets.TRANSLATORS_STAGING }}
         TRANSLATORS_PRODUCTION: ${{ secrets.TRANSLATORS_PRODUCTION }}
