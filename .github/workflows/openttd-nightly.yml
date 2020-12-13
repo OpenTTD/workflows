@@ -1,0 +1,70 @@
+name: OpenTTD nightly
+
+on:
+  schedule:
+  - cron: '0 18 * * *'
+  - cron: '0 19 * * *'
+  workflow_dispatch:
+
+env:
+  SCHEDULE_HOUR: 20
+
+jobs:
+  openttd-nightly:
+    name: OpenTTD nightly
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check for time in CE(S)T
+      if: github.event_name != 'workflow_dispatch'
+      id: cest_time
+      run: |
+        # GitHub Actions run in UTC. We want the nightly to be produced on
+        # 20:00 CE(S)T, which doesn't have a single UTC representation. So,
+        # we trigger this job twice. Once on CET and once on CEST. This step
+        # checks if it was 20:NN CE(S)T, and only allows one of the two to
+        # trigger the rest of this workflow.
+
+        HOUR=$(TZ=Europe/Amsterdam date +%H)
+        if [ "${HOUR}" = "${{ env.SCHEDULE_HOUR }}" ]; then
+          BUILD_NIGHTLY=1
+        else
+          BUILD_NIGHTLY=0
+        fi
+
+        echo "Current hour in CE(S)T: ${HOUR}"
+        echo "Scheduled hour: ${{ env.SCHEDULE_HOUR }}"
+        echo "Build nightly: ${BUILD_NIGHTLY}"
+
+        echo "::set-output name=build_nightly::${BUILD_NIGHTLY}"
+
+    - name: Check for new commit
+      if: github.event_name == 'workflow_dispatch' || steps.cest_time.outputs.build_nightly != '0'
+      id: new_commit
+      run: |
+        LATEST_RELEASE=$(curl -s https://cdn.openttd.org/openttd-nightlies/latest.yaml | grep "\- version: " | cut -b 12-)
+        YEAR=$(echo "${LATEST_RELEASE}" | cut -b1-4)
+        LATEST_REF=$(curl -s https://cdn.openttd.org/openttd-nightlies/${YEAR}/${LATEST_RELEASE}/changelog.txt | head -n 1 | cut -d\  -f2)
+        CURRENT_REF=$(curl -s https://api.github.com/repos/OpenTTD/OpenTTD/branches/master | jq -r .commit.sha)
+
+        if [ "${LATEST_REF}" != "${CURRENT_REF}" ]; then
+          BUILD_NIGHTLY=1
+        else
+          BUILD_NIGHTLY=0
+        fi
+
+        echo "Latest nightly ref: ${LATEST_REF}"
+        echo "Current ref of master: ${CURRENT_REF}"
+        echo "Build nightly: ${BUILD_NIGHTLY}"
+
+        echo "::set-output name=build_nightly::${BUILD_NIGHTLY}"
+
+    - name: Trigger 'Build nightly'
+      if: steps.new_commit.outputs.build_nightly != '0'
+      uses: peter-evans/repository-dispatch@v1
+      with:
+        token: ${{ secrets.DEPLOYMENT_TOKEN }}
+        repository: OpenTTD/OpenTTD
+        event-type: Build nightly
+        client-payload: '{"ref": "master"}'

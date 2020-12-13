@@ -3,9 +3,9 @@ name: New OpenTTD release
 on:
   repository_dispatch:
     types:
-    - new_tag
-    - new_master
-    - new_pullrequest
+    - new-tag
+    - new-master
+    - new-branch
 
 # client_payload should contain:
 #  - version: the version of the new release, e.g.: 20200101-master-g12345
@@ -35,14 +35,15 @@ jobs:
       with:
         token: ${{ secrets.DEPLOYMENT_TOKEN }}
         repository: OpenTTD/workflows
-        event-type: update_cdn
+        event-type: update-cdn
         client-payload: '{"version": "${{ github.event.client_payload.version }}", "folder": "${{ github.event.client_payload.folder }}"}'
 
-    - if: github.event.action == 'new_master'
+    # Docs we publish are always based on the master.
+    - if: github.event.action == 'new-master'
       name: Trigger 'publish docs'
       uses: peter-evans/repository-dispatch@v1
       with:
         token: ${{ secrets.DEPLOYMENT_TOKEN }}
         repository: OpenTTD/workflows
-        event-type: publish_docs
+        event-type: publish-docs
         client-payload: '{"version": "${{ github.event.client_payload.version }}", "folder": "${{ github.event.client_payload.folder }}"}'

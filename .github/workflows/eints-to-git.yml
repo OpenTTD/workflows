@@ -3,22 +3,51 @@ name: Eints to Git
 on:
   schedule:
   - cron: '45 17 * * *'
+  - cron: '45 18 * * *'
   workflow_dispatch:
+
+env:
+  SCHEDULE_HOUR: 19
 
 jobs:
   eints-to-git:
-    # Prevent this from running on forks
-    if: github.repository == 'OpenTTD/workflows'
     name: Eints To Git
+
     runs-on: ubuntu-latest
+
     steps:
+    - name: Check for time in CE(S)T
+      if: github.event_name != 'workflow_dispatch'
+      id: cest_time
+      run: |
+        # GitHub Actions run in UTC. We want this export to be produced on
+        # 19:45 CE(S)T, which doesn't have a single UTC representation. So,
+        # we trigger this job twice. Once on CET and once on CEST. This step
+        # checks if it was 19:NN CE(S)T, and only allows one of the two to
+        # trigger the rest of this workflow.
+
+        HOUR=$(TZ=Europe/Amsterdam date +%H)
+        if [ "${HOUR}" = "${{ env.SCHEDULE_HOUR }}" ]; then
+          RUN_EINTS=1
+        else
+          RUN_EINTS=0
+        fi
+
+        echo "Current hour in CE(S)T: ${HOUR}"
+        echo "Scheduled hour: ${{ env.SCHEDULE_HOUR }}"
+        echo "Run eints to git: ${RUN_EINTS}"
+
+        echo "::set-output name=run_eints::${RUN_EINTS}"
+
     - name: Checkout
+      if: github.event_name == 'workflow_dispatch' || steps.cest_time.outputs.run_eints != '0'
       uses: actions/checkout@v2
       with:
         repository: OpenTTD/eints
         ref: openttd-github
 
     - name: Checkout OpenTTD-eints-test
+      if: github.event_name == 'workflow_dispatch' || steps.cest_time.outputs.run_eints != '0'
       uses: actions/checkout@v2
       with:
         repository: OpenTTD/eints-sandbox
@@ -26,6 +55,7 @@ jobs:
         token: ${{ secrets.EINTS_GITHUB_TOKEN }}
 
     - name: Checkout OpenTTD
+      if: github.event_name == 'workflow_dispatch' || steps.cest_time.outputs.run_eints != '0'
       uses: actions/checkout@v2
       with:
         repository: OpenTTD/OpenTTD
@@ -33,16 +63,19 @@ jobs:
         token: ${{ secrets.EINTS_GITHUB_TOKEN }}
 
     - name: Set up Python 3.8
+      if: github.event_name == 'workflow_dispatch' || steps.cest_time.outputs.run_eints != '0'
       uses: actions/setup-python@v1
       with:
         python-version: 3.8
 
     - name: Prepare git
+      if: github.event_name == 'workflow_dispatch' || steps.cest_time.outputs.run_eints != '0'
       run: |
         git config --global user.email "translators@openttd.org"
         git config --global user.name "translators"
 
     - name: Export staging
+      if: github.event_name == 'workflow_dispatch' || steps.cest_time.outputs.run_eints != '0'
       run: |
         cd scripts
 
@@ -53,6 +86,7 @@ jobs:
         TRANSLATORS_STAGING: ${{ secrets.TRANSLATORS_STAGING }}
 
     - name: Export production
+      if: github.event_name == 'workflow_dispatch' || steps.cest_time.outputs.run_eints != '0'
       run: |
         cd scripts
 
