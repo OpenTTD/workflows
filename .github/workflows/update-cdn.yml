@@ -3,7 +3,7 @@ name: Update CDN
 on:
   repository_dispatch:
     types:
-    - update_cdn
+    - update-cdn
 
 # client_payload should contain:
 #  - version: the version of the new release, e.g.: 20200101-master-g12345
@@ -71,14 +71,14 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-    - name: Trigger 'publish website (staging)'
+    - name: Trigger 'publish website' (Staging)
       uses: peter-evans/repository-dispatch@v1
       with:
         token: ${{ secrets.DEPLOYMENT_TOKEN }}
         repository: OpenTTD/website
         event-type: publish_master
 
-    - name: Trigger 'publish website (Production)'
+    - name: Trigger 'publish website' (Production)
       uses: peter-evans/repository-dispatch@v1
       with:
         token: ${{ secrets.DEPLOYMENT_TOKEN }}
