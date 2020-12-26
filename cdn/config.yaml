@@ -15,7 +15,7 @@ folders:
   override-name: in-folder-name
   sort: normal
 
-- name: openttd-pullrequests
+- name: openttd-branches
   subfolders: per-name
   override-name: in-folder-name
   sort: normal
