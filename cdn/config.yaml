@@ -27,3 +27,7 @@ folders:
 - name: opengfx-nightlies
   override-name: in-folder-name
   sort: normal
+
+- name: opensfx-nightlies
+  override-name: in-folder-name
+  sort: normal
