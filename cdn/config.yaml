@@ -31,3 +31,7 @@ folders:
 - name: opensfx-nightlies
   override-name: in-folder-name
   sort: normal
+
+- name: openmsx-nightlies
+  override-name: in-folder-name
+  sort: normal
