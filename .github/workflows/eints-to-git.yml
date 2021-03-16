@@ -62,6 +62,38 @@ jobs:
         path: scripts/OpenTTD
         token: ${{ secrets.EINTS_GITHUB_TOKEN }}
 
+    - name: Checkout OpenGFX
+      if: github.event_name == 'workflow_dispatch' || steps.cest_time.outputs.run_eints != '0'
+      uses: actions/checkout@v2
+      with:
+        repository: OpenTTD/OpenGFX
+        path: scripts/OpenGFX
+        token: ${{ secrets.EINTS_GITHUB_TOKEN }}
+
+    - name: Checkout OpenSFX
+      if: github.event_name == 'workflow_dispatch' || steps.cest_time.outputs.run_eints != '0'
+      uses: actions/checkout@v2
+      with:
+        repository: OpenTTD/OpenSFX
+        path: scripts/OpenSFX
+        token: ${{ secrets.EINTS_GITHUB_TOKEN }}
+
+    - name: Checkout OpenMSX
+      if: github.event_name == 'workflow_dispatch' || steps.cest_time.outputs.run_eints != '0'
+      uses: actions/checkout@v2
+      with:
+        repository: OpenTTD/OpenMSX
+        path: scripts/OpenMSX
+        token: ${{ secrets.EINTS_GITHUB_TOKEN }}
+
+    - name: Checkout steam-data
+      if: github.event_name == 'workflow_dispatch' || steps.cest_time.outputs.run_eints != '0'
+      uses: actions/checkout@v2
+      with:
+        repository: OpenTTD/steam-data
+        path: scripts/steam-data
+        token: ${{ secrets.EINTS_GITHUB_TOKEN }}
+
     - name: Set up Python 3.8
       if: github.event_name == 'workflow_dispatch' || steps.cest_time.outputs.run_eints != '0'
       uses: actions/setup-python@v1
@@ -80,8 +112,11 @@ jobs:
         cd scripts
 
         printf "username:translators\npassword:${TRANSLATORS_STAGING}\n" > user.cfg
-        python eintsgit.py --project openttd-master --working-copy eints-sandbox --base-url https://translator.staging.openttd.org commit-to-git
-        python eintsgit.py --project openttd-master --working-copy eints-sandbox --base-url https://translator.staging.openttd.org --force update-from-git
+
+        echo "Syncing eints-sandbox"
+        python eintsgit.py --project openttd-master --working-copy eints-sandbox --base-url https://translator.staging.openttd.org --lang-dir src/lang --unstable-lang-dir src/lang/unfinished --lang-file-ext .txt commit-to-git
+        python eintsgit.py --project openttd-master --working-copy eints-sandbox --base-url https://translator.staging.openttd.org --lang-dir src/lang --unstable-lang-dir src/lang/unfinished --lang-file-ext .txt --force update-from-git
+
       env:
         TRANSLATORS_STAGING: ${{ secrets.TRANSLATORS_STAGING }}
 
@@ -91,7 +126,26 @@ jobs:
         cd scripts
 
         printf "username:translators\npassword:${TRANSLATORS_PRODUCTION}\n" > user.cfg
-        python eintsgit.py --project openttd-master --working-copy OpenTTD --base-url https://translator.openttd.org commit-to-git
-        python eintsgit.py --project openttd-master --working-copy OpenTTD --base-url https://translator.openttd.org --force update-from-git
+
+        echo "Syncing OpenTTD"
+        python eintsgit.py --project openttd-master --working-copy OpenTTD --base-url https://translator.openttd.org --lang-dir src/lang --unstable-lang-dir src/lang/unfinished --lang-file-ext .txt commit-to-git
+        python eintsgit.py --project openttd-master --working-copy OpenTTD --base-url https://translator.openttd.org --lang-dir src/lang --unstable-lang-dir src/lang/unfinished --lang-file-ext .txt --force update-from-git
+
+        echo "Syncing OpenGFX"
+        python eintsgit.py --project opengfx --working-copy OpenGFX --base-url https://translator.openttd.org --lang-dir lang --lang-file-ext .lng commit-to-git
+        python eintsgit.py --project opengfx --working-copy OpenGFX --base-url https://translator.openttd.org --lang-dir lang --lang-file-ext .lng --force update-from-git
+
+        echo "Syncing OpenSFX"
+        python eintsgit.py --project opensfx --working-copy OpenSFX --base-url https://translator.openttd.org --lang-dir lang --lang-file-ext .lng commit-to-git
+        python eintsgit.py --project opensfx --working-copy OpenSFX --base-url https://translator.openttd.org --lang-dir lang --lang-file-ext .lng --force update-from-git
+
+        echo "Syncing OpenMSX"
+        python eintsgit.py --project openmsx --working-copy OpenMSX --base-url https://translator.openttd.org --lang-dir lang --lang-file-ext .lng commit-to-git
+        python eintsgit.py --project openmsx --working-copy OpenMSX --base-url https://translator.openttd.org --lang-dir lang --lang-file-ext .lng --force update-from-git
+
+        echo "Syncing steam-data"
+        python eintsgit.py --project steam-data --working-copy steam-data --base-url https://translator.openttd.org --lang-dir lang --lang-file-ext .txt commit-to-git
+        python eintsgit.py --project steam-data --working-copy steam-data --base-url https://translator.openttd.org --lang-dir lang --lang-file-ext .txt --force update-from-git
+
       env:
         TRANSLATORS_PRODUCTION: ${{ secrets.TRANSLATORS_PRODUCTION }}
