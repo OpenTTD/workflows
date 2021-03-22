@@ -2,8 +2,8 @@ name: Eints to Git
 
 on:
   schedule:
-  - cron: '45 17 * * *'
-  - cron: '45 18 * * *'
+  - cron: '30 17 * * *'
+  - cron: '30 18 * * *'
   workflow_dispatch:
 
 env:
