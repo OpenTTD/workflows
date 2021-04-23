@@ -114,8 +114,8 @@ jobs:
         printf "username:translators\npassword:${TRANSLATORS_STAGING}\n" > user.cfg
 
         echo "Syncing eints-sandbox"
-        python eintsgit.py --project openttd-master --working-copy eints-sandbox --base-url https://translator.staging.openttd.org --lang-dir src/lang --unstable-lang-dir src/lang/unfinished --lang-file-ext .txt commit-to-git
-        python eintsgit.py --project openttd-master --working-copy eints-sandbox --base-url https://translator.staging.openttd.org --lang-dir src/lang --unstable-lang-dir src/lang/unfinished --lang-file-ext .txt --force update-from-git
+        python eintsgit.py --project openttd-master --working-copy eints-sandbox --base-url https://translator.staging.openttd.org --lang-dir src/lang --lang-file-ext .txt commit-to-git
+        python eintsgit.py --project openttd-master --working-copy eints-sandbox --base-url https://translator.staging.openttd.org --lang-dir src/lang --lang-file-ext .txt --force update-from-git
 
       env:
         TRANSLATORS_STAGING: ${{ secrets.TRANSLATORS_STAGING }}
@@ -128,8 +128,8 @@ jobs:
         printf "username:translators\npassword:${TRANSLATORS_PRODUCTION}\n" > user.cfg
 
         echo "Syncing OpenTTD"
-        python eintsgit.py --project openttd-master --working-copy OpenTTD --base-url https://translator.openttd.org --lang-dir src/lang --unstable-lang-dir src/lang/unfinished --lang-file-ext .txt commit-to-git
-        python eintsgit.py --project openttd-master --working-copy OpenTTD --base-url https://translator.openttd.org --lang-dir src/lang --unstable-lang-dir src/lang/unfinished --lang-file-ext .txt --force update-from-git
+        python eintsgit.py --project openttd-master --working-copy OpenTTD --base-url https://translator.openttd.org --lang-dir src/lang --lang-file-ext .txt commit-to-git
+        python eintsgit.py --project openttd-master --working-copy OpenTTD --base-url https://translator.openttd.org --lang-dir src/lang --lang-file-ext .txt --force update-from-git
 
         echo "Syncing OpenGFX"
         python eintsgit.py --project opengfx --working-copy OpenGFX --base-url https://translator.openttd.org --lang-dir lang --lang-file-ext .lng commit-to-git
