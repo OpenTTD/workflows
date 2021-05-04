@@ -9,6 +9,8 @@ on:
 #  - version: the version of the new release, e.g.: 20200101-master-g12345
 #  - folder: the folder in which the release is located openttd-nightlies/2020
 
+concurrency: docs
+
 jobs:
   publish_docs:
     name: Publish docs
