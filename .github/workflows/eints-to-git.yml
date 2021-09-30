@@ -16,7 +16,6 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: OpenTTD/eints
-        ref: openttd-github
 
     - name: Checkout OpenTTD-eints-test
       uses: actions/checkout@v2
