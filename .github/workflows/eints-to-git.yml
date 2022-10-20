@@ -13,54 +13,54 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: OpenTTD/eints
 
     - name: Checkout OpenTTD-eints-test
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: OpenTTD/eints-sandbox
         path: scripts/eints-sandbox
         token: ${{ secrets.EINTS_GITHUB_TOKEN }}
 
     - name: Checkout OpenTTD
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: OpenTTD/OpenTTD
         path: scripts/OpenTTD
         token: ${{ secrets.EINTS_GITHUB_TOKEN }}
 
     - name: Checkout OpenGFX
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: OpenTTD/OpenGFX
         path: scripts/OpenGFX
         token: ${{ secrets.EINTS_GITHUB_TOKEN }}
 
     - name: Checkout OpenSFX
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: OpenTTD/OpenSFX
         path: scripts/OpenSFX
         token: ${{ secrets.EINTS_GITHUB_TOKEN }}
 
     - name: Checkout OpenMSX
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: OpenTTD/OpenMSX
         path: scripts/OpenMSX
         token: ${{ secrets.EINTS_GITHUB_TOKEN }}
 
     - name: Checkout steam-data
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: OpenTTD/steam-data
         path: scripts/steam-data
         token: ${{ secrets.EINTS_GITHUB_TOKEN }}
 
     - name: Set up Python 3.8
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
         python-version: 3.8
 
