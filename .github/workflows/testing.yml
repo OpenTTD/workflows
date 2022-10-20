@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Flake8
       uses: TrueBrain/actions-flake8@v2
       with:
@@ -25,9 +25,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Set up Python 3.7
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
         python-version: 3.7
     - name: Black
@@ -49,4 +49,4 @@ jobs:
 
     steps:
     - name: Check annotations
-      uses: OpenTTD/actions/annotation-check@v2
+      uses: OpenTTD/actions/annotation-check@v3
