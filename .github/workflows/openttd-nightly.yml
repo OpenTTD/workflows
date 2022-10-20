@@ -30,7 +30,7 @@ jobs:
         echo "Current ref of master: ${CURRENT_REF}"
         echo "Build nightly: ${BUILD_NIGHTLY}"
 
-        echo "::set-output name=build_nightly::${BUILD_NIGHTLY}"
+        echo "build_nightly=${BUILD_NIGHTLY}" >> $GITHUB_OUTPUT
 
     - name: Trigger 'Build nightly'
       if: steps.new_commit.outputs.build_nightly != '0'
