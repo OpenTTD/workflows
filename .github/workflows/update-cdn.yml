@@ -73,14 +73,14 @@ jobs:
         AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
 
     - name: Trigger 'publish website' (Staging)
-      uses: peter-evans/repository-dispatch@v1
+      uses: peter-evans/repository-dispatch@v2
       with:
         token: ${{ secrets.DEPLOYMENT_TOKEN }}
         repository: OpenTTD/website
         event-type: publish_main
 
     - name: Trigger 'publish website' (Production)
-      uses: peter-evans/repository-dispatch@v1
+      uses: peter-evans/repository-dispatch@v2
       with:
         token: ${{ secrets.DEPLOYMENT_TOKEN }}
         repository: OpenTTD/website
