@@ -24,4 +24,8 @@ def version_sort(s):
         preversion += str(versions[3:])
         versions = versions[0:3]
 
+    # Ensure versions are always in pair of three.
+    if len(versions) < 3:
+        versions += ["0"] * (3 - len(versions))
+
     return list(map(int, versions)) + [preversion]
