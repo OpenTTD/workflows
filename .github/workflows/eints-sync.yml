@@ -1,0 +1,102 @@
+name: Eints sync
+
+on:
+  schedule:
+  - cron: '30 18 * * *'
+  workflow_dispatch:
+
+jobs:
+  sandbox-preview:
+    name: Sandbox (preview)
+    uses: ./.github/workflows/rw-eints-sync.yml
+    secrets:
+      EINTS_APP_ID: ${{ secrets.EINTS_APP_ID }}
+      EINTS_APP_PRIVATE_KEY: ${{ secrets.EINTS_APP_PRIVATE_KEY }}
+      TRANSLATORS_PASSWORD: ${{ secrets.TRANSLATORS_PREVIEW }}
+    with:
+      repository: OpenTTD/eints-sandbox
+      project: openttd-master
+      lang_dir: src/lang
+      lang_file_ext: .txt
+      base_url: https://translator-preview.openttd.org
+
+  openttd:
+    name: OpenTTD
+    uses: ./.github/workflows/rw-eints-sync.yml
+    secrets:
+      EINTS_APP_ID: ${{ secrets.EINTS_APP_ID }}
+      EINTS_APP_PRIVATE_KEY: ${{ secrets.EINTS_APP_PRIVATE_KEY }}
+      TRANSLATORS_PASSWORD: ${{ secrets.TRANSLATORS_PROD }}
+    with:
+      repository: OpenTTD/OpenTTD
+      project: openttd-master
+      lang_dir: src/lang
+      lang_file_ext: .txt
+
+  opengfx:
+    # We chain the production jobs, to not hammer the backend.
+    needs:
+    - openttd
+
+    name: OpenGFX
+    uses: ./.github/workflows/rw-eints-sync.yml
+    secrets:
+      EINTS_APP_ID: ${{ secrets.EINTS_APP_ID }}
+      EINTS_APP_PRIVATE_KEY: ${{ secrets.EINTS_APP_PRIVATE_KEY }}
+      TRANSLATORS_PASSWORD: ${{ secrets.TRANSLATORS_PROD }}
+    with:
+      repository: OpenTTD/OpenGFX
+      project: opengfx
+      lang_dir: lang
+      lang_file_ext: .lng
+
+  opensfx:
+    # We chain the production jobs, to not hammer the backend.
+    needs:
+    - opengfx
+
+    name: OpenSFX
+    uses: ./.github/workflows/rw-eints-sync.yml
+    secrets:
+      EINTS_APP_ID: ${{ secrets.EINTS_APP_ID }}
+      EINTS_APP_PRIVATE_KEY: ${{ secrets.EINTS_APP_PRIVATE_KEY }}
+      TRANSLATORS_PASSWORD: ${{ secrets.TRANSLATORS_PROD }}
+    with:
+      repository: OpenTTD/OpenSFX
+      project: opensfx
+      lang_dir: lang
+      lang_file_ext: .lng
+
+  openmsx:
+    # We chain the production jobs, to not hammer the backend.
+    needs:
+    - opensfx
+
+    name: OpenMSX
+    uses: ./.github/workflows/rw-eints-sync.yml
+    secrets:
+      EINTS_APP_ID: ${{ secrets.EINTS_APP_ID }}
+      EINTS_APP_PRIVATE_KEY: ${{ secrets.EINTS_APP_PRIVATE_KEY }}
+      TRANSLATORS_PASSWORD: ${{ secrets.TRANSLATORS_PROD }}
+    with:
+      repository: OpenTTD/OpenMSX
+      project: openmsx
+      lang_dir: lang
+      lang_file_ext: .lng
+
+  appstore:
+    # We chain the production jobs, to not hammer the backend.
+    needs:
+    - openmsx
+
+    name: AppStore
+    uses: ./.github/workflows/rw-eints-sync.yml
+    secrets:
+      EINTS_APP_ID: ${{ secrets.EINTS_APP_ID }}
+      EINTS_APP_PRIVATE_KEY: ${{ secrets.EINTS_APP_PRIVATE_KEY }}
+      TRANSLATORS_PASSWORD: ${{ secrets.TRANSLATORS_PROD }}
+    with:
+      repository: OpenTTD/appstore-data
+      project: steam-data
+      lang_dir: lang
+      lang_file_ext: .txt
