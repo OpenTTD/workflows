@@ -1,0 +1,83 @@
+name: Eints sync
+
+on:
+  workflow_call:
+    inputs:
+      repository:
+        description: The repository on GitHub
+        required: true
+        type: string
+      project:
+        description: The project name in eints
+        required: true
+        type: string
+      lang_dir:
+        description: The language directory
+        required: true
+        type: string
+      lang_file_ext:
+        description: The language file extension
+        required: true
+        type: string
+      base_url:
+        description: The base URL of the translator
+        default: https://translator.openttd.org
+        type: string
+    secrets:
+      EINTS_APP_ID:
+        description: The app ID for accessing eints
+        required: true
+      EINTS_APP_PRIVATE_KEY:
+        description: The private key for accessing eints
+        required: true
+      TRANSLATORS_PASSWORD:
+        description: The password for accessing eints
+        required: true
+
+jobs:
+  eints_to_git:
+    name: Eints sync
+
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout eints
+      uses: actions/checkout@v3
+      with:
+        repository: OpenTTD/eints
+
+    - name: Generate access token
+      id: generate_token
+      uses: tibdex/github-app-token@v1
+      with:
+        app_id: ${{ secrets.EINTS_APP_ID }}
+        private_key: ${{ secrets.EINTS_APP_PRIVATE_KEY }}
+        repository: ${{ inputs.repository }}
+
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repository }}
+        path: scripts/${{ inputs.project }}
+        token: ${{ steps.generate_token.outputs.token }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.8
+
+    - name: Prepare git
+      run: |
+        git config --global user.email "translators@openttd.org"
+        git config --global user.name "translators"
+
+    - name: Sync with git
+      run: |
+        cd scripts
+
+        printf "username:translators\npassword:${TRANSLATORS_PASSWORD}\n" > user.cfg
+
+        python eintsgit.py --project ${{ inputs.project }} --working-copy ${{ inputs.project }} --base-url ${{ inputs.base_url }} --lang-dir ${{ inputs.lang_dir }} --lang-file-ext ${{ inputs.lang_file_ext }} commit-to-git
+        python eintsgit.py --project ${{ inputs.project }} --working-copy ${{ inputs.project }} --base-url ${{ inputs.base_url }} --lang-dir ${{ inputs.lang_dir }} --lang-file-ext ${{ inputs.lang_file_ext }} --force update-from-git
+
+      env:
+        TRANSLATORS_PASSWORD: ${{ secrets.TRANSLATORS_PASSWORD }}
