@@ -14,11 +14,15 @@ folders:
   subfolders: per-year
   override-name: in-folder-name
   sort: normal
+  cleanup-after: 3mo
+  cleanup-keep: source
 
 - name: openttd-branches
   subfolders: per-name
   override-name: in-folder-name
   sort: normal
+  cleanup-after: 1mo
+  cleanup-keep: 1
 
 - name: grfcodec-nightlies
   override-name: nightly
@@ -27,11 +31,17 @@ folders:
 - name: opengfx-nightlies
   override-name: in-folder-name
   sort: normal
+  cleanup-after: 3mo
+  cleanup-keep: 3
 
 - name: opensfx-nightlies
   override-name: in-folder-name
   sort: normal
+  cleanup-after: 3mo
+  cleanup-keep: 3
 
 - name: openmsx-nightlies
   override-name: in-folder-name
   sort: normal
+  cleanup-after: 3mo
+  cleanup-keep: 3

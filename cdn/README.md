@@ -56,3 +56,9 @@ There are several keys per entry:
 - `sort`: optional (default: `version`).
   - `normal`: use "abc" sorting.
   - `version`: use version sorting: "1.9-alpha1" < "1.9-beta2" < "1.9-RC3" < "1.9" < "1.10".
+- `cleanup-after`: optional (default: `never`)
+  - `never`: never cleanup this folder.
+  - `Nmo` or `Nd`: after how many months/days a version can be removed.
+- `cleanup-keep`: optional (default: none)
+  - `source`: source files are always kept (binaries are removed).
+  - `N`: how many entries should be kept, even if expired.
