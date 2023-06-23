@@ -1,6 +1,7 @@
 import click
 import yaml
 
+from cdn_generator.cleanup import cleanup_category
 from cdn_generator.common_files import generate_common_files
 from cdn_generator.helpers import set_bucket_id
 from cdn_generator.latest_yaml import (
@@ -20,7 +21,9 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.option("--bucket-id", help="Id of the S3 Bucket", required=True)
 @click.option("--new-release", help="Folder of the new release")
-def main(bucket_id, new_release):
+@click.option("--cleanup", help="Cleanup folders below --new-release folder", is_flag=True)
+@click.option("--cleanup-confirm", help="Confirm the generated list of files that would be deleted", is_flag=True)
+def main(bucket_id, new_release, cleanup, cleanup_confirm):
     set_bucket_id(bucket_id)
 
     with open("config.yaml", "r") as f:
@@ -49,6 +52,22 @@ def main(bucket_id, new_release):
         all_versions.extend(category_versions)
 
         if not skip_write:
+            if cleanup:
+                deleting = cleanup_category(
+                    category, category_config, filter_path=new_release, do_delete=cleanup_confirm
+                )
+                if not cleanup_confirm and deleting:
+                    with open("cleanup.txt", "w") as fp:
+                        for file in deleting:
+                            fp.write(f"{file}\n")
+
+                    print("In 'cleanup.txt' are all the files this script wants to delete.")
+                    print(
+                        "Please validate this list and rerun this script with '--cleanup-confirm' "
+                        "to actually delete those files."
+                    )
+                    return
+
             generate_manifests(category, category_config, filter_path=new_release)
             generate_directory_listing(category, config=category_config, filter_path=new_release)
 

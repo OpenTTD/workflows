@@ -65,6 +65,16 @@ def get_content(key):
     return content["Body"].read().decode().strip()
 
 
+def delete_files(files):
+    client.delete_objects(
+        Bucket=BUCKET,
+        Delete={
+            "Objects": [{"Key": file} for file in files],
+            "Quiet": True,
+        },
+    )
+
+
 def get_name(folder, config):
     override_name = config.get("override-name")
     if override_name is None:
