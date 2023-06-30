@@ -73,16 +73,24 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
 
+    - name: Generate access token
+      id: generate_token
+      uses: tibdex/github-app-token@v1
+      with:
+        app_id: ${{ secrets.DEPLOYMENT_APP_ID }}
+        private_key: ${{ secrets.DEPLOYMENT_APP_PRIVATE_KEY }}
+        repository: OpenTTD/website
+
     - name: Trigger 'publish website' (Staging)
       uses: peter-evans/repository-dispatch@v2
       with:
-        token: ${{ secrets.DEPLOYMENT_TOKEN }}
+        token: ${{ steps.generate_token.outputs.token }}
         repository: OpenTTD/website
         event-type: publish_main
 
     - name: Trigger 'publish website' (Production)
       uses: peter-evans/repository-dispatch@v2
       with:
-        token: ${{ secrets.DEPLOYMENT_TOKEN }}
+        token: ${{ steps.generate_token.outputs.token }}
         repository: OpenTTD/website
         event-type: publish_latest_tag
