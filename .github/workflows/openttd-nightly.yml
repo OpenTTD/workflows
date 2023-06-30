@@ -32,11 +32,20 @@ jobs:
 
         echo "build_nightly=${BUILD_NIGHTLY}" >> $GITHUB_OUTPUT
 
+    - name: Generate access token
+      if: steps.new_commit.outputs.build_nightly != '0'
+      id: generate_token
+      uses: tibdex/github-app-token@v1
+      with:
+        app_id: ${{ secrets.DEPLOYMENT_APP_ID }}
+        private_key: ${{ secrets.DEPLOYMENT_APP_PRIVATE_KEY }}
+        repository: OpenTTD/OpenTTD
+
     - name: Trigger 'Build nightly'
       if: steps.new_commit.outputs.build_nightly != '0'
       uses: peter-evans/repository-dispatch@v2
       with:
-        token: ${{ secrets.DEPLOYMENT_TOKEN }}
+        token: ${{ steps.generate_token.outputs.token }}
         repository: OpenTTD/OpenTTD
         event-type: Build nightly
         client-payload: '{"ref": "master"}'
