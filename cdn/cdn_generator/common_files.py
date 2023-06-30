@@ -15,8 +15,5 @@ def generate_common_files():
     shutil.copyfile("config.yaml", "generated/config.yaml")
     shutil.copyfile("README.md", "generated/README.md")
 
-    pathlib.Path("generated/errors").mkdir(parents=True, exist_ok=True)
-    shutil.copyfile("errors/404.html", "generated/errors/404.html")
-
     with open("generated/robots.txt", "w") as f:
         f.write("\n".join(["User-agent: *", "Disallow: /"]) + "\n")
