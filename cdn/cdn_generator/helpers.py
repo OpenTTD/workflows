@@ -1,4 +1,5 @@
 import boto3
+import os
 import sys
 
 from botocore.exceptions import ClientError
@@ -7,7 +8,7 @@ from cdn_generator.version_sort import version_sort
 
 BUCKET = None
 
-client = boto3.client("s3")
+client = boto3.client("s3", endpoint_url=os.getenv("S3_ENDPOINT_URL"))
 
 
 class UnknownOverrideName(Exception):
