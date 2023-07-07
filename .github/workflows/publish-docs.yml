@@ -4,10 +4,15 @@ on:
   repository_dispatch:
     types:
     - publish-docs
-
-# client_payload should contain:
-#  - version: the version of the new release, e.g.: 20200101-master-g12345
-#  - folder: the folder in which the release is located openttd-nightlies/2020
+    # client_payload should contain both fields as mentioned in workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The version of the new release, e.g.: 20200101-master-g12345'
+        required: true
+      folder:
+        description: 'The folder in which the release is located openttd-nightlies/2020'
+        required: true
 
 concurrency: docs
 
@@ -18,35 +23,33 @@ jobs:
 
     steps:
     - name: Sanity check
+      shell: bash
       run: |
-        set -x
-
-        if [ -z "${{ github.event.client_payload.version }}" ]; then
+        if [ -z "${{ inputs.version || github.event.client_payload.version }}" ]; then
           echo "::error::version in client_payload is not set"
           exit 1
         fi
-        if [ -z "${{ github.event.client_payload.folder }}" ]; then
+        if [ -z "${{ inputs.folder || github.event.client_payload.folder }}" ]; then
           echo "::error::folder in client_payload is not set"
           exit 1
         fi
-        if [ -z "${{ secrets.DOCS_S3_BUCKET }}" ]; then
-          echo "::error::secret DOCS_S3_BUCKET is not set"
+        if [ -z "${{ secrets.DOCS_CLOUDFLARE_ACCOUNT_ID }}" ]; then
+          echo "::error::secret DOCS_CLOUDFLARE_ACCOUNT_ID is not set"
           exit 1
         fi
-        if [ -z "${{ secrets.DOCS_CF_DISTRIBUTION_ID }}" ]; then
-          echo "::error::secret DOCS_CF_DISTRIBUTION_ID is not set"
+        if [ -z "${{ secrets.DOCS_CLOUDFLARE_API_TOKEN }}" ]; then
+          echo "::error::secret DOCS_CLOUDFLARE_API_TOKEN is not set"
           exit 1
         fi
 
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Publish docs
+    - name: Prepare docs
+      shell: bash
       run: |
-        set -x
-
-        VERSION=${{ github.event.client_payload.version }}
-        FOLDER=${{ github.event.client_payload.folder }}
+        VERSION=${{ inputs.version || github.event.client_payload.version }}
+        FOLDER=${{ inputs.folder || github.event.client_payload.folder }}
 
         # Fetch and extract the docs
         curl --fail -s -L -o docs-ai.tar.xz https://cdn.openttd.org/${FOLDER}/${VERSION}/openttd-${VERSION}-docs-ai.tar.xz
@@ -56,24 +59,17 @@ jobs:
         tar xf docs-gs.tar.xz
         tar xf docs.tar.xz
 
-        # Sync all the new/modified files
-        aws s3 sync --only-show-errors docs/root/ s3://${{ secrets.DOCS_S3_BUCKET }}/
-        aws s3 sync --only-show-errors docs/errors/ s3://${{ secrets.DOCS_S3_BUCKET }}/errors/
-        aws s3 sync --only-show-errors openttd-${VERSION}-docs-ai/html/ s3://${{ secrets.DOCS_S3_BUCKET }}/ai-api/
-        aws s3 sync --only-show-errors openttd-${VERSION}-docs-gs/html/ s3://${{ secrets.DOCS_S3_BUCKET }}/gs-api/
-        aws s3 sync --only-show-errors openttd-${VERSION}-docs/html/ s3://${{ secrets.DOCS_S3_BUCKET }}/source/
+        mkdir public
+        cp docs/root/* public/
+        mv openttd-${VERSION}-docs-ai/html public/ai-api
+        mv openttd-${VERSION}-docs-gs/html public/gs-api
+        mv openttd-${VERSION}-docs/html public/source
 
-        # Delete any unknown file; this is a separate step, as 'aws s3 sync'
-        # can delete before uploading, which could mean files temporary link
-        # to invalid files.
-        aws s3 sync --only-show-errors --delete docs/errors/ s3://${{ secrets.DOCS_S3_BUCKET }}/errors/
-        aws s3 sync --only-show-errors --delete openttd-${VERSION}-docs-ai/html/ s3://${{ secrets.DOCS_S3_BUCKET }}/ai-api/
-        aws s3 sync --only-show-errors --delete openttd-${VERSION}-docs-gs/html/ s3://${{ secrets.DOCS_S3_BUCKET }}/gs-api/
-        aws s3 sync --only-show-errors --delete openttd-${VERSION}-docs/html/ s3://${{ secrets.DOCS_S3_BUCKET }}/source/
-
-        # Invalidate the cache of the CloudFront distribution
-        aws cloudfront create-invalidation --distribution-id ${{ secrets.DOCS_CF_DISTRIBUTION_ID }} --paths "/*"
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+    - name: Publish docs
+      uses: cloudflare/pages-action@v1
+      with:
+        apiToken: ${{ secrets.DOCS_CLOUDFLARE_API_TOKEN }}
+        accountId: ${{ secrets.DOCS_CLOUDFLARE_ACCOUNT_ID }}
+        projectName: ${{ vars.DOCS_CLOUDFLARE_PROJECT_NAME }}
+        directory: _site
+        branch: main
