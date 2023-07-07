@@ -71,5 +71,5 @@ jobs:
         apiToken: ${{ secrets.DOCS_CLOUDFLARE_API_TOKEN }}
         accountId: ${{ secrets.DOCS_CLOUDFLARE_ACCOUNT_ID }}
         projectName: ${{ vars.DOCS_CLOUDFLARE_PROJECT_NAME }}
-        directory: _site
+        directory: public
         branch: main
