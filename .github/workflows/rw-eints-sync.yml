@@ -52,7 +52,7 @@ jobs:
         app_id: ${{ secrets.EINTS_APP_ID }}
         private_key: ${{ secrets.EINTS_APP_PRIVATE_KEY }}
         installation_retrieval_mode: "repository"
-        installation_retrieval_payload ${{ inputs.repository }}
+        installation_retrieval_payload: ${{ inputs.repository }}
 
     - name: Checkout repository
       uses: actions/checkout@v4
