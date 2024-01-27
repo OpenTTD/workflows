@@ -32,14 +32,15 @@ jobs:
 
     - name: Generate access token
       id: generate_token
-      uses: tibdex/github-app-token@v1
+      uses: tibdex/github-app-token@v2
       with:
         app_id: ${{ secrets.DEPLOYMENT_APP_ID }}
         private_key: ${{ secrets.DEPLOYMENT_APP_PRIVATE_KEY }}
-        repository: OpenTTD/workflows
+        installation_retrieval_mode: "repository"
+        installation_retrieval_payload: "OpenTTD/workflows"
 
     - name: Trigger 'update CDN'
-      uses: peter-evans/repository-dispatch@v2
+      uses: peter-evans/repository-dispatch@v3
       with:
         token: ${{ steps.generate_token.outputs.token }}
         repository: OpenTTD/workflows
@@ -49,7 +50,7 @@ jobs:
     # Docs we publish are always based on the master.
     - if: github.event.action == 'new-master'
       name: Trigger 'publish docs'
-      uses: peter-evans/repository-dispatch@v2
+      uses: peter-evans/repository-dispatch@v3
       with:
         token: ${{ steps.generate_token.outputs.token }}
         repository: OpenTTD/workflows
