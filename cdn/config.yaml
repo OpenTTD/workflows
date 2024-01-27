@@ -10,6 +10,10 @@ folders:
 - name: openttd-useful-releases
 - name: osie-releases
 
+- name: discord-social-releases
+- name: gog-galaxy-social-releases
+- name: steam-social-releases
+
 - name: openttd-nightlies
   subfolders: per-year
   override-name: in-folder-name
