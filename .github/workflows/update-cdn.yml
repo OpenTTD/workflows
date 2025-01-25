@@ -66,7 +66,9 @@ jobs:
           --bucket-id ${{ secrets.CDN_R2_BUCKET }} \
           --new-release ${{ inputs.folder || github.event.client_payload.folder }}/${{ inputs.version || github.event.client_payload.version }}
 
-        aws s3 cp \
+        # Disable CRC validation, as currently Cloudflare R2 doesn't support this yet.
+        # See https://www.cloudflarestatus.com/incidents/t5nrjmpxc1cj for more information.
+        AWS_REQUEST_CHECKSUM_CALCULATION=WHEN_REQUIRED AWS_RESPONSE_CHECKSUM_VALIDATION=WHEN_REQUIRED aws s3 cp \
           --recursive \
           --endpoint-url ${{ secrets.CDN_R2_ENDPOINT }} \
           --only-show-errors \
