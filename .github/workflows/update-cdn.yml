@@ -48,6 +48,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r cdn/requirements.txt
 
+        # Since AWS CLI 2.23, AWS enabled strict validation of checksums. Cloudflare R2 doesn't support
+        # this at this moment. We need to install an older version of the AWS CLI to work around this.
+        # See https://www.cloudflarestatus.com/incidents/t5nrjmpxc1cj for more information.
+
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.22.28.zip" -o "awscliv2.zip"
+        unzip -q awscliv2.zip
+        ./aws/install --bin-dir ~/.local/bin --install-dir ~/.aws-cli
+        rm -rf awscliv2.zip aws
+
     # By default, mime.types doesn't include one for YAML files. This results
     # in empty content-type on the CDN, which means browsers want to download
     # the file instead of showing it inline. By adding this entry to
@@ -66,9 +75,7 @@ jobs:
           --bucket-id ${{ secrets.CDN_R2_BUCKET }} \
           --new-release ${{ inputs.folder || github.event.client_payload.folder }}/${{ inputs.version || github.event.client_payload.version }}
 
-        # Disable CRC validation, as currently Cloudflare R2 doesn't support this yet.
-        # See https://www.cloudflarestatus.com/incidents/t5nrjmpxc1cj for more information.
-        AWS_REQUEST_CHECKSUM_CALCULATION=WHEN_REQUIRED AWS_RESPONSE_CHECKSUM_VALIDATION=WHEN_REQUIRED aws s3 cp \
+        aws s3 cp \
           --recursive \
           --endpoint-url ${{ secrets.CDN_R2_ENDPOINT }} \
           --only-show-errors \
