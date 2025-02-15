@@ -24,7 +24,7 @@ jobs:
     uses: OpenTTD/actions/.github/workflows/rw-py-black.yml@v5
     with:
       python-path: cdn/cdn_generator
-      python-version: 3.8
+      python-version: 3.11
 
   install:
     name: Install
@@ -38,7 +38,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: 3.8
+        python-version: 3.11
 
     - name: Install dependencies
       run: |
