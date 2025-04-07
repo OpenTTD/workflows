@@ -50,10 +50,27 @@ jobs:
       lang_dir: lang
       lang_file_ext: .lng
 
-  opensfx:
+  opengfx2:
     # We chain the production jobs, to not hammer the backend.
     needs:
     - opengfx
+
+    name: OpenGFX2
+    uses: ./.github/workflows/rw-eints-sync.yml
+    secrets:
+      EINTS_APP_ID: ${{ secrets.EINTS_APP_ID }}
+      EINTS_APP_PRIVATE_KEY: ${{ secrets.EINTS_APP_PRIVATE_KEY }}
+      TRANSLATORS_PASSWORD: ${{ secrets.TRANSLATORS_PROD }}
+    with:
+      repository: OpenTTD/OpenGFX2
+      project: opengfx2
+      lang_dir: baseset/lang
+      lang_file_ext: .lng
+
+  opensfx:
+    # We chain the production jobs, to not hammer the backend.
+    needs:
+    - opengfx2
 
     name: OpenSFX
     uses: ./.github/workflows/rw-eints-sync.yml
