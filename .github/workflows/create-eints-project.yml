@@ -1,0 +1,55 @@
+name: Add new project to eints
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: The project identifier in eints
+        required: true
+        type: string
+      project_desc:
+        description: The displayed project name in eints
+        required: true
+        type: string
+      project_type:
+        description: Dialect for lang files
+        required: true
+        type: choice
+        options:
+        - newgrf
+        - game-script
+        - openttd
+      base_url:
+        description: The base URL of the translator
+        default: https://translator.openttd.org
+        type: string
+    secrets:
+      TRANSLATORS_PASSWORD:
+        description: The password for accessing eints
+        required: true
+
+jobs:
+  create_project:
+    name: Create project
+
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout eints
+      uses: actions/checkout@v4
+      with:
+        repository: OpenTTD/eints
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.11
+
+    - name: Send request
+      run: |
+        cd scripts
+
+        printf "username:translators\npassword:${TRANSLATORS_PASSWORD}\n" > user.cfg
+
+        python lang_sync --base-url ${{ inputs.base_url }} --user-password-file user.cfg --project ${{ inputs.project }} --project-desc ${{ inputs.project_desc }} --project-type ${{ inputs.project_type }} create-project
+      env:
+        TRANSLATORS_PASSWORD: ${{ secrets.TRANSLATORS_PASSWORD }}
