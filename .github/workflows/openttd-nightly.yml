@@ -17,9 +17,8 @@ jobs:
       run: |
         LATEST_RELEASE=$(curl -s https://cdn.openttd.org/openttd-nightlies/latest.yaml | grep "\- version: " | cut -b 12-)
         YEAR=$(echo "${LATEST_RELEASE}" | cut -b1-4)
-        LATEST_REF=$(curl -s https://cdn.openttd.org/openttd-nightlies/${YEAR}/${LATEST_RELEASE}/changelog.txt | head -n 1 | cut -d\  -f2)
-        CURRENT_REF=$(curl -s https://api.github.com/repos/OpenTTD/OpenTTD/branches/master | jq -r .commit.sha)
-
+        LATEST_REF=$(curl -s https://cdn.openttd.org/openttd-nightlies/${YEAR}/${LATEST_RELEASE}/changelog.md | head -n 3 | tail -n 1 | cut -d\  -f1)
+        CURRENT_REF=$(curl -s https://api.github.com/repos/OpenTTD/OpenTTD/branches/master | jq -r .commit.sha[0:$(expr length "${LATEST_REF}")])
         if [ "${LATEST_REF}" != "${CURRENT_REF}" ]; then
           BUILD_NIGHTLY=1
         else
