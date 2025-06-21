@@ -4,6 +4,7 @@ folders:
 - name: nforenum-releases
 - name: nosound-releases
 - name: opengfx-releases
+- name: opengfx2_classic-releases
 - name: openmsx-releases
 - name: opensfx-releases
 - name: openttd-releases
@@ -33,6 +34,12 @@ folders:
   sort: normal
 
 - name: opengfx-nightlies
+  override-name: in-folder-name
+  sort: normal
+  cleanup-after: 3mo
+  cleanup-keep: 3
+
+- name: opengfx2_classic-nightlies
   override-name: in-folder-name
   sort: normal
   cleanup-after: 3mo
