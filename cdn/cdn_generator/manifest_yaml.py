@@ -32,7 +32,11 @@ def _generate_manifest(category, folder, files, config):
     manifest_files = []
     manifest_dev_files = []
 
+    changelog = None
     for id, size in files.items():
+        if id.lower().startswith("changelog"):
+            changelog = id
+
         if id.endswith((".html", ".md", ".txt", ".yaml", ".md5sum", ".sha1sum", ".sha256sum")):
             continue
 
@@ -65,9 +69,11 @@ def _generate_manifest(category, folder, files, config):
             f"version: {folder}",
             f"date: {date}",
             f"base: {base}",
-            "files:",
         ]
     )
+    if changelog:
+        manifest.append(f"changelog: {changelog}")
+    manifest.append("files:")
     manifest.extend(manifest_files)
     manifest.append("dev_files:")
     manifest.extend(manifest_dev_files)
