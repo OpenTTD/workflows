@@ -20,7 +20,6 @@ def _cleanup_directory(folder, keep_source, do_delete):
                 continue
             # As this folder won't be empty, keep the files that indicate what this folder is about too.
             if file in (
-                "changelog.txt",
                 "index.html",
                 "manifest.yaml",
                 "README.md",
@@ -28,6 +27,8 @@ def _cleanup_directory(folder, keep_source, do_delete):
                 "README.txt",
                 "released.txt",
             ):
+                continue
+            if file.lower().startswith("changelog"):
                 continue
 
         fullname = f"{folder}/{file}"
