@@ -40,7 +40,7 @@ jobs:
         installation_retrieval_payload: "OpenTTD/workflows"
 
     - name: Trigger 'update CDN'
-      uses: peter-evans/repository-dispatch@v3
+      uses: peter-evans/repository-dispatch@v4
       with:
         token: ${{ steps.generate_token.outputs.token }}
         repository: OpenTTD/workflows
@@ -50,7 +50,7 @@ jobs:
     # Docs we publish are always based on the master.
     - if: github.event.action == 'new-master'
       name: Trigger 'publish docs'
-      uses: peter-evans/repository-dispatch@v3
+      uses: peter-evans/repository-dispatch@v4
       with:
         token: ${{ steps.generate_token.outputs.token }}
         repository: OpenTTD/workflows

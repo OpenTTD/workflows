@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout eints
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: OpenTTD/eints
 
@@ -55,14 +55,14 @@ jobs:
         installation_retrieval_payload: ${{ inputs.repository }}
 
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: ${{ inputs.repository }}
         path: scripts/${{ inputs.project }}
         token: ${{ steps.generate_token.outputs.token }}
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: 3.11
 

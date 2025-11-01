@@ -36,10 +36,10 @@ jobs:
         fi
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: 3.11
 
@@ -96,7 +96,7 @@ jobs:
         installation_retrieval_payload: "OpenTTD/website"
 
     - name: Trigger 'publish website'
-      uses: peter-evans/repository-dispatch@v3
+      uses: peter-evans/repository-dispatch@v4
       with:
         token: ${{ steps.generate_token.outputs.token }}
         repository: OpenTTD/website
