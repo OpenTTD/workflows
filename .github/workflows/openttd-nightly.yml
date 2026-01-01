@@ -43,7 +43,7 @@ jobs:
 
     - name: Trigger 'Build nightly'
       if: steps.new_commit.outputs.build_nightly != '0'
-      uses: peter-evans/repository-dispatch@v3
+      uses: peter-evans/repository-dispatch@v4
       with:
         token: ${{ steps.generate_token.outputs.token }}
         repository: OpenTTD/OpenTTD
