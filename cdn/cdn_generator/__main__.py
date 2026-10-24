@@ -14,7 +14,6 @@ from cdn_generator.directory_listing import (
     generate_directory_listing_root,
 )
 
-
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 
